@@ -24,7 +24,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
     setImageError(true);
   };
 
-  const handleAddToList = (e: React.MouseEvent) => {
+  const handleWishlistToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isInList && onRemoveFromList) {
       onRemoveFromList(movie.id);
@@ -38,6 +38,12 @@ const MovieCard: React.FC<MovieCardProps> = ({
     setShowModal(true);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setShowModal(false);
+    }
+  };
+
   return (
     <>
       <div 
@@ -47,7 +53,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
       >
         <div className="relative overflow-hidden rounded-lg shadow-lg">
           <img
-            src={imageError ? '/api/placeholder/300/450' : movie.image}
+            src={imageError ? 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=300&h=450&fit=crop' : movie.image}
             alt={movie.title}
             onError={handleImageError}
             className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110"
@@ -80,13 +86,17 @@ const MovieCard: React.FC<MovieCardProps> = ({
               </button>
               
               <button 
-                onClick={handleAddToList}
-                className={`p-2 rounded-full transition-colors ${isInList ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 hover:bg-gray-700'}`}
+                onClick={handleWishlistToggle}
+                className={`p-2 rounded-full transition-colors ${isInList ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'}`}
+                title={isInList ? 'Remove from My List' : 'Add to My List'}
               >
                 {isInList ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
               </button>
 
-              <button className="p-2 bg-gray-600 rounded-full hover:bg-gray-700 transition-colors">
+              <button 
+                className="p-2 bg-gray-600 rounded-full hover:bg-gray-700 transition-colors text-red-400 hover:text-red-300"
+                title="Like"
+              >
                 <Heart className="h-3 w-3" />
               </button>
             </div>
@@ -104,16 +114,21 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
       {/* Trailer Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="relative bg-black rounded-lg overflow-hidden max-w-4xl w-full max-h-[80vh]">
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
+        >
+          <div className="relative bg-black rounded-lg overflow-hidden max-w-6xl w-full max-h-[90vh]">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+              className="absolute top-4 right-4 z-10 p-3 bg-black/70 text-white rounded-full hover:bg-black/90 transition-colors text-xl font-bold"
+              title="Close (Press Esc)"
             >
-              <X className="h-6 w-6" />
+              ✕
             </button>
             
-            <div className="aspect-video">
+            <div className="aspect-video bg-black">
               <iframe
                 src={movie.trailer}
                 title={`${movie.title} Trailer`}
@@ -127,11 +142,32 @@ const MovieCard: React.FC<MovieCardProps> = ({
               <h2 className="text-2xl font-bold text-white mb-2">{movie.title}</h2>
               <p className="text-gray-300 mb-4">{movie.description}</p>
               
-              <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
                 <span>★ {movie.rating}</span>
                 <span>{movie.year}</span>
                 <span>{movie.duration}</span>
                 <span className="capitalize">{movie.type}</span>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <button 
+                  onClick={handleWishlistToggle}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md font-semibold transition-colors ${
+                    isInList 
+                      ? 'bg-red-600 hover:bg-red-700 text-white' 
+                      : 'bg-gray-600 hover:bg-gray-700 text-white'
+                  }`}
+                >
+                  {isInList ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  <span>{isInList ? 'Remove from List' : 'Add to My List'}</span>
+                </button>
+                
+                <button 
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors"
+                >
+                  Back to Browse
+                </button>
               </div>
             </div>
           </div>

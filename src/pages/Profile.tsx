@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, Mail, Edit3, Save, X } from 'lucide-react';
+import { User, Mail, Edit3, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -9,6 +9,7 @@ const Profile = () => {
   const { isDark, toggleTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || '');
+  const [profileImage, setProfileImage] = useState(user?.avatar || '');
 
   const handleSave = () => {
     // In a real app, this would update the user profile
@@ -21,22 +22,52 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setProfileImage(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 pt-20">
+    <div className={`min-h-screen pt-20 transition-colors duration-300 ${
+      isDark 
+        ? 'bg-gradient-to-br from-gray-900 via-black to-gray-900' 
+        : 'bg-gradient-to-br from-gray-100 via-white to-gray-200'
+    }`}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
+        <div className={`backdrop-blur-sm rounded-2xl shadow-2xl border overflow-hidden transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gray-800/50 border-gray-700' 
+            : 'bg-white/80 border-gray-200'
+        }`}>
           {/* Header */}
           <div className="bg-gradient-to-r from-red-600 to-red-700 p-8">
             <div className="flex items-center space-x-6">
-              <div className="relative">
+              <div className="relative group">
                 <img
-                  src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=ffffff&color=000000&size=128`}
+                  src={profileImage || `https://ui-avatars.com/api/?name=${user.name}&background=${isDark ? 'ffffff' : '000000'}&color=${isDark ? '000000' : 'ffffff'}&size=128`}
                   alt={user.name}
-                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+                  className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
                 />
                 <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white"></div>
+                
+                {/* Upload overlay */}
+                <label className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Camera className="h-6 w-6 text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
               </div>
               
               <div className="text-white">
@@ -49,8 +80,12 @@ const Profile = () => {
           {/* Content */}
           <div className="p-8 space-y-8">
             {/* Account Information */}
-            <div className="bg-gray-700/30 rounded-xl p-6">
-              <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
+            <div className={`rounded-xl p-6 transition-colors duration-300 ${
+              isDark ? 'bg-gray-700/30' : 'bg-gray-100/50'
+            }`}>
+              <h2 className={`text-2xl font-semibold mb-6 flex items-center transition-colors duration-300 ${
+                isDark ? 'text-white' : 'text-gray-800'
+              }`}>
                 <User className="h-6 w-6 mr-2 text-red-600" />
                 Account Information
               </h2>
@@ -59,16 +94,24 @@ const Profile = () => {
                 {/* Name */}
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <label className="text-gray-300 text-sm font-medium">Name</label>
+                    <label className={`text-sm font-medium transition-colors duration-300 ${
+                      isDark ? 'text-gray-300' : 'text-gray-600'
+                    }`}>Name</label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="block w-full mt-1 bg-gray-600 text-white border border-gray-500 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+                        className={`block w-full mt-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600 transition-colors duration-300 ${
+                          isDark 
+                            ? 'bg-gray-600 text-white border-gray-500' 
+                            : 'bg-white text-gray-900 border-gray-300'
+                        }`}
                       />
                     ) : (
-                      <p className="text-white text-lg mt-1">{user.name}</p>
+                      <p className={`text-lg mt-1 transition-colors duration-300 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>{user.name}</p>
                     )}
                   </div>
                   <div className="ml-4 flex space-x-2">
@@ -100,29 +143,41 @@ const Profile = () => {
 
                 {/* Email */}
                 <div>
-                  <label className="text-gray-300 text-sm font-medium flex items-center">
+                  <label className={`text-sm font-medium flex items-center transition-colors duration-300 ${
+                    isDark ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
                     <Mail className="h-4 w-4 mr-1" />
                     Email
                   </label>
-                  <p className="text-white text-lg mt-1">{user.email}</p>
+                  <p className={`text-lg mt-1 transition-colors duration-300 ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>{user.email}</p>
                 </div>
               </div>
             </div>
 
             {/* Preferences */}
-            <div className="bg-gray-700/30 rounded-xl p-6">
-              <h2 className="text-2xl font-semibold text-white mb-6">Preferences</h2>
+            <div className={`rounded-xl p-6 transition-colors duration-300 ${
+              isDark ? 'bg-gray-700/30' : 'bg-gray-100/50'
+            }`}>
+              <h2 className={`text-2xl font-semibold mb-6 transition-colors duration-300 ${
+                isDark ? 'text-white' : 'text-gray-800'
+              }`}>Preferences</h2>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-white font-medium">Theme</h3>
-                    <p className="text-gray-400 text-sm">Choose your preferred theme</p>
+                    <h3 className={`font-medium transition-colors duration-300 ${
+                      isDark ? 'text-white' : 'text-gray-800'
+                    }`}>Theme</h3>
+                    <p className={`text-sm transition-colors duration-300 ${
+                      isDark ? 'text-gray-400' : 'text-gray-600'
+                    }`}>Choose between dark and light mode</p>
                   </div>
                   <button
                     onClick={toggleTheme}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      isDark ? 'bg-red-600' : 'bg-gray-600'
+                      isDark ? 'bg-red-600' : 'bg-gray-300'
                     }`}
                   >
                     <span
@@ -136,8 +191,12 @@ const Profile = () => {
             </div>
 
             {/* Account Actions */}
-            <div className="bg-gray-700/30 rounded-xl p-6">
-              <h2 className="text-2xl font-semibold text-white mb-6">Account Actions</h2>
+            <div className={`rounded-xl p-6 transition-colors duration-300 ${
+              isDark ? 'bg-gray-700/30' : 'bg-gray-100/50'
+            }`}>
+              <h2 className={`text-2xl font-semibold mb-6 transition-colors duration-300 ${
+                isDark ? 'text-white' : 'text-gray-800'
+              }`}>Account Actions</h2>
               
               <div className="space-y-4">
                 <button

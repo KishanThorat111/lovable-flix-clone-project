@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import HeroSection from '../components/HeroSection';
 import MovieRow from '../components/MovieRow';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import { useTheme } from '../contexts/ThemeContext';
 import { movies, Movie, getMoviesByType } from '../data/movies';
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [myList, setMyList] = useState<number[]>([]);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     // Simulate loading
@@ -51,7 +53,9 @@ const Home = () => {
   const sciFi = movies.filter(movie => movie.genre.includes('Sci-Fi'));
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      isDark ? 'bg-black' : 'bg-gray-50'
+    }`}>
       <HeroSection />
       
       <div className="relative z-10 -mt-32 space-y-8">
