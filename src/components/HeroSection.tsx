@@ -1,9 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { Play, Plus, Heart } from 'lucide-react';
+import { Play, Plus, Heart, Check } from 'lucide-react';
 import { Movie, getFeaturedMovie } from '../data/movies';
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onAddToList?: (movie: Movie) => void;
+  onRemoveFromList?: (movieId: number) => void;
+  myList?: number[];
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ 
+  onAddToList, 
+  onRemoveFromList, 
+  myList = [] 
+}) => {
   const [featuredMovie] = useState<Movie>(getFeaturedMovie());
   const [scrollY, setScrollY] = useState(0);
   const [showTrailer, setShowTrailer] = useState(false);
@@ -18,9 +28,18 @@ const HeroSection = () => {
   }, []);
 
   const parallaxOffset = scrollY * 0.5;
+  const isInMyList = myList.includes(featuredMovie.id);
 
   const handlePlayTrailer = () => {
     setShowTrailer(true);
+  };
+
+  const handleMyListToggle = () => {
+    if (isInMyList && onRemoveFromList) {
+      onRemoveFromList(featuredMovie.id);
+    } else if (onAddToList) {
+      onAddToList(featuredMovie);
+    }
   };
 
   return (
@@ -77,13 +96,24 @@ const HeroSection = () => {
                 <span>Play</span>
               </button>
               
-              <button className="flex items-center space-x-2 bg-gray-500/70 text-white px-8 py-3 rounded-md font-semibold hover:bg-gray-500 transition-all duration-300 hover:scale-105">
-                <Plus className="h-5 w-5" />
+              <button 
+                onClick={handleMyListToggle}
+                className="flex items-center space-x-2 bg-gray-500/70 text-white px-8 py-3 rounded-md font-semibold hover:bg-gray-500 transition-all duration-300 hover:scale-105"
+              >
+                {isInMyList ? (
+                  <Check className="h-5 w-5" />
+                ) : (
+                  <Plus className="h-5 w-5" />
+                )}
                 <span>My List</span>
               </button>
 
-              <button className="p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-all duration-300 hover:scale-110">
-                <Heart className="h-5 w-5" />
+              <button 
+                onClick={handleMyListToggle}
+                className="p-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-all duration-300 hover:scale-110"
+                title={isInMyList ? 'Remove from My List' : 'Add to My List'}
+              >
+                <Heart className={`h-5 w-5 ${isInMyList ? 'fill-red-600 text-red-600' : ''}`} />
               </button>
             </div>
           </div>

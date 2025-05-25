@@ -56,9 +56,13 @@ const Home = () => {
     <div className={`min-h-screen transition-colors duration-300 ${
       isDark ? 'bg-black' : 'bg-gray-50'
     }`}>
-      <HeroSection />
+      <HeroSection 
+        onAddToList={handleAddToList}
+        onRemoveFromList={handleRemoveFromList}
+        myList={myList}
+      />
       
-      <div className="relative z-10 -mt-32 space-y-8">
+      <div className="relative z-10 -mt-32 space-y-12 pt-8">
         <MovieRow
           title="Trending Now"
           movies={trendingMovies}
